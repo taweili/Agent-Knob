@@ -88,6 +88,10 @@ globals:
     type: bool
     restore_value: no
     initial_value: 'false'
+  - id: color_page_index
+    type: int
+    restore_value: no
+    initial_value: '0'
 
 switch:
   - platform: template
@@ -534,6 +538,23 @@ binary_sensor:
                   return buf;
             - script.execute: update_cover_position
       - if:
+          condition:
+            lambda: 'return id(current_page) == 5;'
+          then:
+            # Page 5 - Color Picker - Previous color
+            - lambda: |-
+                static const uint32_t colors[] = {0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0xFF8C00, 0x800080, 0xFFC0CB};
+                static const char* names[] = {"Red", "Green", "Blue", "Yellow", "Cyan", "Magenta", "White", "Orange", "Purple", "Pink"};
+                int count = 10;
+                id(color_page_index) = (id(color_page_index) - 1 + count) % count;
+                int idx = id(color_page_index);
+                lv_obj_set_style_bg_color(color_bg, lv_color_hex(colors[idx]), LV_PART_MAIN);
+            - lvgl.label.update:
+                id: color_name_label
+                text: !lambda |-
+                  static const char* names[] = {"Red", "Green", "Blue", "Yellow", "Cyan", "Magenta", "White", "Orange", "Purple", "Pink"};
+                  return names[id(color_page_index)];
+      - if:
           condition: lvgl.is_paused
           then:
             - logger.log: "LVGL resuming from encoder"
@@ -584,6 +605,23 @@ binary_sensor:
                   snprintf(buf, sizeof(buf), "%d%%", id(pending_cover_position));
                   return buf;
             - script.execute: update_cover_position
+      - if:
+          condition:
+            lambda: 'return id(current_page) == 5;'
+          then:
+            # Page 5 - Color Picker - Next color
+            - lambda: |-
+                static const uint32_t colors[] = {0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0xFF8C00, 0x800080, 0xFFC0CB};
+                static const char* names[] = {"Red", "Green", "Blue", "Yellow", "Cyan", "Magenta", "White", "Orange", "Purple", "Pink"};
+                int count = 10;
+                id(color_page_index) = (id(color_page_index) + 1) % count;
+                int idx = id(color_page_index);
+                lv_obj_set_style_bg_color(color_bg, lv_color_hex(colors[idx]), LV_PART_MAIN);
+            - lvgl.label.update:
+                id: color_name_label
+                text: !lambda |-
+                  static const char* names[] = {"Red", "Green", "Blue", "Yellow", "Cyan", "Magenta", "White", "Orange", "Purple", "Pink"};
+                  return names[id(color_page_index)];
       - if:
           condition: lvgl.is_paused
           then:
@@ -755,15 +793,88 @@ lvgl:
                   data:
                     entity_id: switch.0x70b3d52b600fde27
       on_swipe_left:
-        - lambda: 'id(current_page) = 1;'
+        - lambda: 'id(current_page) = 4;'
         - lvgl.page.show:
-            id: page_1
+            id: page_4
             animation: MOVE_LEFT
 
       on_swipe_right:
         - lambda: 'id(current_page) = 2;'
         - lvgl.page.show:
             id: page_2
+            animation: MOVE_RIGHT
+
+    # Page 4 - Deepseek TUI
+    - id: page_4
+      widgets:
+        - obj:
+            id: background3
+            x: 0
+            y: 0
+            width: 360
+            height: 360
+            bg_color: 0x000000
+            border_width: 0
+            pad_all: 0
+
+        - label:
+            id: deepseek_label
+            align: center
+            text: "Deepseek TUI"
+            text_font: roboto_32
+            text_color: 0xFFFFFF
+
+      on_swipe_left:
+        - lambda: 'id(current_page) = 5;'
+        - lvgl.page.show:
+            id: page_5
+            animation: MOVE_LEFT
+
+      on_swipe_right:
+        - lambda: 'id(current_page) = 3;'
+        - lvgl.page.show:
+            id: page_3
+            animation: MOVE_RIGHT
+
+    # Page 5 - Color Picker
+    - id: page_5
+      widgets:
+        - obj:
+            id: color_bg
+            x: 0
+            y: 0
+            width: 360
+            height: 360
+            bg_color: 0xFF0000
+            border_width: 0
+            pad_all: 0
+
+        - label:
+            id: color_name_label
+            align: center
+            y: -20
+            text: "Red"
+            text_font: roboto_88
+            text_color: 0x000000
+
+        - label:
+            id: color_hint_label
+            align: center
+            y: 60
+            text: "Scroll to change"
+            text_font: roboto_20
+            text_color: 0x000000
+
+      on_swipe_left:
+        - lambda: 'id(current_page) = 1;'
+        - lvgl.page.show:
+            id: page_1
+            animation: MOVE_LEFT
+
+      on_swipe_right:
+        - lambda: 'id(current_page) = 4;'
+        - lvgl.page.show:
+            id: page_4
             animation: MOVE_RIGHT
 
 sensor:
