@@ -2,4 +2,4 @@
 .gsd/
 .esphome/
 secrets.yaml
-
+.deepseek/
