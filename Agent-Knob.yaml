@@ -480,7 +480,7 @@ binary_sensor:
                 if (id(percentage_value) > 0) {
                   id(percentage_value)--;
                 }
-            - lvgl.widget.update:
+            - lvgl.arc.update:
                 id: percentage_arc
                 value: !lambda 'return id(percentage_value);'
             - lvgl.label.update:
@@ -530,7 +530,7 @@ binary_sensor:
                 if (id(percentage_value) < 100) {
                   id(percentage_value)++;
                 }
-            - lvgl.widget.update:
+            - lvgl.arc.update:
                 id: percentage_arc
                 value: !lambda 'return id(percentage_value);'
             - lvgl.label.update:
