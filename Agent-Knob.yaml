@@ -71,7 +71,7 @@ globals:
   - id: current_page
     type: int
     restore_value: no
-    initial_value: '4'
+    initial_value: '1'
   - id: color_page_index
     type: int
     restore_value: no
@@ -456,9 +456,9 @@ binary_sensor:
     on_press:
       - if:
           condition:
-            lambda: 'return id(current_page) == 5;'
+            lambda: 'return id(current_page) == 2;'
           then:
-            # Page 5 - Color Picker - Previous color
+            # Page 2 - Color Picker - Previous color
             - lambda: |-
                 static const uint32_t colors[] = {0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0xFF8C00, 0x800080, 0xFFC0CB};
                 static const char* names[] = {"Red", "Green", "Blue", "Yellow", "Cyan", "Magenta", "White", "Orange", "Purple", "Pink"};
@@ -473,9 +473,9 @@ binary_sensor:
                   return names[id(color_page_index)];
       - if:
           condition:
-            lambda: 'return id(current_page) == 6;'
+            lambda: 'return id(current_page) == 3;'
           then:
-            # Page 6 - Percentage Control - Decrease
+            # Page 3 - Percentage Control - Decrease
             - lambda: |-
                 if (id(percentage_value) > 0) {
                   id(percentage_value)--;
@@ -506,9 +506,9 @@ binary_sensor:
     on_press:
       - if:
           condition:
-            lambda: 'return id(current_page) == 5;'
+            lambda: 'return id(current_page) == 2;'
           then:
-            # Page 5 - Color Picker - Next color
+            # Page 2 - Color Picker - Next color
             - lambda: |-
                 static const uint32_t colors[] = {0xFF0000, 0x00FF00, 0x0000FF, 0xFFFF00, 0x00FFFF, 0xFF00FF, 0xFFFFFF, 0xFF8C00, 0x800080, 0xFFC0CB};
                 static const char* names[] = {"Red", "Green", "Blue", "Yellow", "Cyan", "Magenta", "White", "Orange", "Purple", "Pink"};
@@ -523,9 +523,9 @@ binary_sensor:
                   return names[id(color_page_index)];
       - if:
           condition:
-            lambda: 'return id(current_page) == 6;'
+            lambda: 'return id(current_page) == 3;'
           then:
-            # Page 6 - Percentage Control - Increase
+            # Page 3 - Percentage Control - Increase
             - lambda: |-
                 if (id(percentage_value) < 100) {
                   id(percentage_value)++;
@@ -561,7 +561,7 @@ lvgl:
   pages:
 
     # Page 1 - Deepseek TUI
-    - id: page_4
+    - id: page_1
       widgets:
         - obj:
             id: background3
@@ -581,19 +581,19 @@ lvgl:
             text_color: 0xFFFFFF
 
       on_swipe_left:
-        - lambda: 'id(current_page) = 6;'
+        - lambda: 'id(current_page) = 3;'
         - lvgl.page.show:
-            id: page_6
+            id: page_3
             animation: MOVE_LEFT
 
       on_swipe_right:
-        - lambda: 'id(current_page) = 5;'
+        - lambda: 'id(current_page) = 2;'
         - lvgl.page.show:
-            id: page_5
+            id: page_2
             animation: MOVE_RIGHT
 
     # Page 2 - Color Picker
-    - id: page_5
+    - id: page_2
       widgets:
         - obj:
             id: color_bg
@@ -622,19 +622,19 @@ lvgl:
             text_color: 0x000000
 
       on_swipe_left:
-        - lambda: 'id(current_page) = 4;'
+        - lambda: 'id(current_page) = 1;'
         - lvgl.page.show:
-            id: page_4
+            id: page_1
             animation: MOVE_LEFT
 
       on_swipe_right:
-        - lambda: 'id(current_page) = 6;'
+        - lambda: 'id(current_page) = 3;'
         - lvgl.page.show:
-            id: page_6
+            id: page_3
             animation: MOVE_RIGHT
 
     # Page 3 - Percentage Control
-    - id: page_6
+    - id: page_3
       widgets:
         - obj:
             id: percentage_bg
@@ -675,15 +675,15 @@ lvgl:
             text_color: 0xAAAAAA
 
       on_swipe_left:
-        - lambda: 'id(current_page) = 4;'
+        - lambda: 'id(current_page) = 1;'
         - lvgl.page.show:
-            id: page_4
+            id: page_1
             animation: MOVE_LEFT
 
       on_swipe_right:
-        - lambda: 'id(current_page) = 5;'
+        - lambda: 'id(current_page) = 2;'
         - lvgl.page.show:
-            id: page_5
+            id: page_2
             animation: MOVE_RIGHT
 
 sensor:
