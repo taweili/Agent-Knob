@@ -71,23 +71,7 @@ globals:
   - id: current_page
     type: int
     restore_value: no
-    initial_value: '1'
-  - id: pending_cover_position
-    type: int
-    restore_value: no
-    initial_value: '0'
-  - id: cover_update_pending
-    type: bool
-    restore_value: no
-    initial_value: 'false'
-  - id: pending_led_brightness
-    type: int
-    restore_value: no
-    initial_value: '0'
-  - id: led_update_pending
-    type: bool
-    restore_value: no
-    initial_value: 'false'
+    initial_value: '4'
   - id: color_page_index
     type: int
     restore_value: no
@@ -458,41 +442,6 @@ display:
       - [0x11, 0x00]
       - delay 120ms
       - [0x29, 0x00]
-script:
-  - id: update_cover_position
-    mode: restart
-    then:
-      - delay: 500ms
-      - if:
-          condition:
-            lambda: 'return id(cover_update_pending);'
-          then:
-            - logger.log: "Sending cover position to HA"
-            - homeassistant.service:
-                service: cover.set_cover_position
-                data:
-                  entity_id: cover.zaslona_salon
-                data_template:
-                  position: !lambda 'return to_string(id(pending_cover_position));'
-            - lambda: 'id(cover_update_pending) = false;'
-  - id: update_led_brightness
-    mode: restart
-    then:
-      - delay: 500ms
-      - if:
-          condition:
-            lambda: 'return id(led_update_pending);'
-          then:
-            - logger.log: "Sending LED brightness to HA"
-            - homeassistant.service:
-                service: light.turn_on
-                data:
-                  entity_id: light.0xa4c1388e095eafba
-                data_template:
-                  brightness_pct: !lambda 'return to_string(id(pending_led_brightness));'
-            - lambda: 'id(led_update_pending) = false;'
-
-
 binary_sensor:
   - platform: gpio
     id: encoder_pin_a
@@ -501,42 +450,6 @@ binary_sensor:
       mode: INPUT_PULLUP
       allow_other_uses: true
     on_press:
-      - if:
-          condition:
-            lambda: 'return id(current_page) == 1;'
-          then:
-            # Page 1 - LED Brightness - Update local value and trigger delayed send
-            - lambda: |-
-                int current_brightness = id(led_update_pending) ? id(pending_led_brightness) : (int)id(ha_led_brightness).state;
-                int new_brightness = current_brightness - 5;
-                if (new_brightness < 0) new_brightness = 0;
-                id(pending_led_brightness) = new_brightness;
-                id(led_update_pending) = true;
-            - lvgl.label.update:
-                id: brightness_label
-                text: !lambda |-
-                  static char buf[8];
-                  snprintf(buf, sizeof(buf), "%d%%", id(pending_led_brightness));
-                  return buf;
-            - script.execute: update_led_brightness
-      - if:
-          condition:
-            lambda: 'return id(current_page) == 2;'
-          then:
-            # Page 2 - Cover Position - Update local value and trigger delayed send
-            - lambda: |-
-                int current_pos = id(cover_update_pending) ? id(pending_cover_position) : (int)id(ha_zaslona_procent).state;
-                int new_pos = current_pos - 10;
-                if (new_pos < 0) new_pos = 0;
-                id(pending_cover_position) = new_pos;
-                id(cover_update_pending) = true;
-            - lvgl.label.update:
-                id: zaslona_value
-                text: !lambda |-
-                  static char buf[8];
-                  snprintf(buf, sizeof(buf), "%d%%", id(pending_cover_position));
-                  return buf;
-            - script.execute: update_cover_position
       - if:
           condition:
             lambda: 'return id(current_page) == 5;'
@@ -571,42 +484,6 @@ binary_sensor:
     on_press:
       - if:
           condition:
-            lambda: 'return id(current_page) == 1;'
-          then:
-            # Page 1 - LED Brightness - Update local value and trigger delayed send
-            - lambda: |-
-                int current_brightness = id(led_update_pending) ? id(pending_led_brightness) : (int)id(ha_led_brightness).state;
-                int new_brightness = current_brightness + 5;
-                if (new_brightness > 100) new_brightness = 100;
-                id(pending_led_brightness) = new_brightness;
-                id(led_update_pending) = true;
-            - lvgl.label.update:
-                id: brightness_label
-                text: !lambda |-
-                  static char buf[8];
-                  snprintf(buf, sizeof(buf), "%d%%", id(pending_led_brightness));
-                  return buf;
-            - script.execute: update_led_brightness
-      - if:
-          condition:
-            lambda: 'return id(current_page) == 2;'
-          then:
-            # Page 2 - Cover Position - Update local value and trigger delayed send
-            - lambda: |-
-                int current_pos = id(cover_update_pending) ? id(pending_cover_position) : (int)id(ha_zaslona_procent).state;
-                int new_pos = current_pos + 10;
-                if (new_pos > 100) new_pos = 100;
-                id(pending_cover_position) = new_pos;
-                id(cover_update_pending) = true;
-            - lvgl.label.update:
-                id: zaslona_value
-                text: !lambda |-
-                  static char buf[8];
-                  snprintf(buf, sizeof(buf), "%d%%", id(pending_cover_position));
-                  return buf;
-            - script.execute: update_cover_position
-      - if:
-          condition:
             lambda: 'return id(current_page) == 5;'
           then:
             # Page 5 - Color Picker - Next color
@@ -630,17 +507,6 @@ binary_sensor:
             - lvgl.widget.redraw:
             - light.turn_on: display_backlight
 
-number:    
-  - platform: template
-    name: LED Brightness
-    id: led_brightness
-    optimistic: true
-    min_value: 0
-    max_value: 100
-    step: 1
-    unit_of_measurement: "%"
-    mode: slider
-  
 lvgl:
   on_idle:
     timeout: 30s
@@ -654,157 +520,7 @@ lvgl:
 
   pages:
 
-    # First Page
-    - id: page_1
-      widgets:
-        - obj:
-            id: background
-            x: 0
-            y: 0
-            width: 360
-            height: 360
-            bg_color: 0x000000
-            border_width: 0
-            pad_all: 0
-
-        - label:
-            id: led_name
-            align: top_mid
-            y: 40
-            text: "LED"
-            text_font: roboto_32
-            text_color: 0xFFFFFF
-
-        - label:
-            id: brightness_label
-            align: top_mid
-            y: 70
-            text_font: roboto_88
-            text_color: 0xFFFFFF
-
-        - label:
-            id: temperatura_name
-            align: top_mid
-            y: 200
-            text: "Temperatura"
-            text_font: roboto_20
-            text_color: 0xFFFFFF
-        - label:
-            id: temperatura_label
-            align: top_mid
-            y: 230
-            text_font: roboto_32
-            text_color: 0xFFFFFF
-        - label:
-            id: bateria_label
-            align: top_mid
-            y: 300
-            text_font: roboto_20
-            text_color: 0xFFFFFF
-
-      on_swipe_left:
-        - lambda: 'id(current_page) = 2;'
-        - lvgl.page.show:
-            id: page_2
-            animation: MOVE_LEFT
-
-      on_swipe_right:
-        - lambda: 'id(current_page) = 3;'
-        - lvgl.page.show:
-            id: page_3 
-            animation: MOVE_RIGHT
-                  
-    - id: page_2
-      widgets:
-        - obj:
-            id: background1
-            x: 0
-            y: 0
-            width: 360
-            height: 360
-            bg_color: 0x000000
-            border_width: 0
-            pad_all: 0
-
-        - label:
-            id: zaslona_name
-            align: top_mid
-            y: 40
-            text: "Zasłona"
-            text_font: roboto_32
-            text_color: 0xFFFFFF
-        - label:
-            id: zaslona_value
-            align: top_mid
-            y: 70
-            text_font: roboto_88
-            text_color: 0xFFFFFF
-
-        - label:
-            id: temperatura_name1
-            align: top_mid
-            y: 200
-            text: "Temperatura"
-            text_font: roboto_20
-            text_color: 0xFFFFFF
-        - label:
-            id: temperatura_label1
-            align: top_mid
-            y: 230
-            text_font: roboto_32
-            text_color: 0xFFFFFF
-
-        - label:
-            id: bateria_label1
-            align: top_mid
-            y: 300
-            text_font: roboto_20
-            text_color: 0xFFFFFF
-
-      on_swipe_left:
-        - lambda: 'id(current_page) = 3;'
-        - lvgl.page.show:
-            id: page_3
-            animation: MOVE_LEFT
-      on_swipe_right:
-        - lambda: 'id(current_page) = 1;'
-        - lvgl.page.show:  
-            id: page_1
-            animation: MOVE_RIGHT
-
-    # Page 3
-    - id: page_3
-      widgets:
-        - obj:
-            id: background2
-            x: 0
-            y: 0
-            width: 360
-            height: 360
-            bg_color: 0x000000
-            border_width: 0
-            pad_all: 0
-        - switch:
-            align: center
-            id: lampa_salon
-            on_click:
-              - homeassistant.service:
-                  service: switch.toggle
-                  data:
-                    entity_id: switch.0x70b3d52b600fde27
-      on_swipe_left:
-        - lambda: 'id(current_page) = 4;'
-        - lvgl.page.show:
-            id: page_4
-            animation: MOVE_LEFT
-
-      on_swipe_right:
-        - lambda: 'id(current_page) = 2;'
-        - lvgl.page.show:
-            id: page_2
-            animation: MOVE_RIGHT
-
-    # Page 4 - Deepseek TUI
+    # Page 1 - Deepseek TUI
     - id: page_4
       widgets:
         - obj:
@@ -831,12 +547,12 @@ lvgl:
             animation: MOVE_LEFT
 
       on_swipe_right:
-        - lambda: 'id(current_page) = 3;'
+        - lambda: 'id(current_page) = 5;'
         - lvgl.page.show:
-            id: page_3
+            id: page_5
             animation: MOVE_RIGHT
 
-    # Page 5 - Color Picker
+    # Page 2 - Color Picker
     - id: page_5
       widgets:
         - obj:
@@ -866,9 +582,9 @@ lvgl:
             text_color: 0x000000
 
       on_swipe_left:
-        - lambda: 'id(current_page) = 1;'
+        - lambda: 'id(current_page) = 4;'
         - lvgl.page.show:
-            id: page_1
+            id: page_4
             animation: MOVE_LEFT
 
       on_swipe_right:
@@ -878,127 +594,3 @@ lvgl:
             animation: MOVE_RIGHT
 
 sensor:
-
-  - platform: homeassistant
-    id: ha_led_brightness
-    entity_id: light.0xa4c1388e095eafba
-    attribute: brightness
-    filters:
-      - filter_out: nan
-      - multiply: 0.392156863
-    on_value:
-      then:
-        - if:
-            condition:
-              lambda: 'return !isnan(x);'
-            then:
-              - lvgl.label.update:
-                  id: brightness_label
-                  text: !lambda |-
-                    static char buf[8];
-                    snprintf(buf, sizeof(buf), "%d%%", (int)x);
-                    return buf;
-
-  - platform: homeassistant
-    id: ha_zaslona_procent
-    entity_id: cover.zaslona_salon
-    attribute: current_position
-    filters:
-      - filter_out: nan    
-    on_value:
-      then:
-        - lvgl.label.update:
-            id: zaslona_value
-            text: !lambda |-
-              static char buf[8];
-              snprintf(buf, sizeof(buf), "%d%%", (int)x);
-              return buf;
-
-  - platform: homeassistant
-    id: ha_temperatura
-    entity_id: sensor.termometr_salon_temperature
-    on_value:
-      then:
-        - lvgl.label.update:
-            id: temperatura_label
-            text: !lambda |-
-              static char buf[16];
-              snprintf(buf, sizeof(buf), "%.1f°C", (float)x);
-              return buf;
-        - lvgl.label.update:
-            id: temperatura_label1
-            text: !lambda |-
-              static char buf[16];
-              snprintf(buf, sizeof(buf), "%.1f°C", (float)x);
-              return buf;
-
-  - platform: adc
-    pin: 1
-    name: "Battery Voltage"
-    id: battery_voltage
-    attenuation: 12db
-    accuracy_decimals: 2
-    update_interval: 1s
-    unit_of_measurement: "V"
-    icon: mdi:battery-medium
-    filters:
-      - multiply: 2.0
-      - median:
-          window_size: 7
-          send_every: 7
-          send_first_at: 7
-      - throttle: 1min
-    on_value:
-      then:
-        - component.update: battery_percentage
-
-  - platform: template
-    id: battery_percentage
-    name: "Battery Percentage"
-    lambda: return id(battery_voltage).state;
-    accuracy_decimals: 0
-    unit_of_measurement: "%"
-    icon: mdi:battery-medium
-    filters:
-      - calibrate_linear:
-         method: exact
-         datapoints:
-          - 2.80 -> 0.0
-          - 3.10 -> 10.0
-          - 3.30 -> 20.0
-          - 3.45 -> 30.0
-          - 3.60 -> 40.0
-          - 3.70 -> 50.0
-          - 3.75 -> 60.0
-          - 3.80 -> 70.0
-          - 3.90 -> 80.0
-          - 4.00 -> 90.0
-          - 4.20 -> 100.0
-      - lambda: |-
-          if (x > 100) return 100;
-          if (x < 0) return 0;
-          return x;
-    on_value:
-      then:
-        - lvgl.label.update:
-            id: bateria_label
-            text: !lambda |-
-              static char buf[8];
-              snprintf(buf, sizeof(buf), "%d%%", (int)x);
-              return buf;
-        - lvgl.label.update:
-            id: bateria_label1
-            text: !lambda |-
-              static char buf[8];
-              snprintf(buf, sizeof(buf), "%d%%", (int)x);
-              return buf;
-
-  - platform: homeassistant
-    id: lampa_ha
-    entity_id: switch.0x70b3d52b600fde27
-    on_value:
-      then:
-        - lvgl.widget.update:
-            id: lampa_salon
-            state:
-              checked: !lambda 'return id(lampa_ha).state != 0;'
