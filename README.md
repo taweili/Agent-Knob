@@ -1,4 +1,4 @@
-# ESP32-S3 Scroll Wheel Controller
+# Agent Knob
 
 An ESPHome-powered rotary encoder device with a 1.8" 360×360 round display (JC3636K518C), integrating with Home Assistant.
 
@@ -32,8 +32,8 @@ An ESPHome-powered rotary encoder device with a 1.8" 360×360 round display (JC3
 ## Features
 
 - **Page 1 — Deepseek TUI**: Placeholder page showing "Deepseek TUI".
-- **Page 2 — Percentage Control**: Scroll to adjust a 0–100% value shown as an arc ring with a centered percentage readout. Defaults to 50%.
-- **Page 3 — Color Picker**: Scroll to cycle through 10 colors (Red, Green, Blue, Yellow, Cyan, Magenta, White, Orange, Purple, Pink). Shows color name on screen.
+- **Page 2 — Color Picker**: Scroll to cycle through 10 colors (Red, Green, Blue, Yellow, Cyan, Magenta, White, Orange, Purple, Pink). Shows color name on screen.
+- **Page 3 — Percentage Control**: Scroll to adjust a 0–100% value shown as an arc ring with a centered percentage readout. Defaults to 50%.
 - **Swipe navigation**: Swipe left/right to move between pages.
 - **Anti-burn**: Scheduled screen-saver (snow pattern) runs in four 30-minute bursts — 02:05–02:35, 03:05–03:35, 04:05–04:35, 05:05–05:35 — to prevent display burn-in. Also exposed as a toggleable `switch.antiburn` entity in Home Assistant.
 - **Deep sleep**: After 30 s of LVGL idle the backlight turns off, LVGL pauses, and after a further 1800 s the device enters deep sleep. Wakes on any encoder rotation.
@@ -73,7 +73,7 @@ esphome run Agent-Knob.yaml
 esphome compile Agent-Knob.yaml
 ```
 
-After first flash the device exposes a fallback hotspot (`scrollwheel Fallback Hotspot`, password `fallbackPassw0rd`) if Wi-Fi credentials are wrong.
+After first flash the device exposes a fallback hotspot (`Agent Knob Fallback Hotspot`, password `fallbackPassw0rd`) if Wi-Fi credentials are wrong.
 
 ## Project Structure
 
