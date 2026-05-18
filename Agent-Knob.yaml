@@ -1,9 +1,9 @@
 substitutions:
-  name: "scrollwheel"
-  friendly_name: "scrollwheel"
-  device_description: "ESP32S3-1.8-inch JC3636K518C"
-  project_name: "iritating.scrollwheel"
-  project_version: "6.6.6"
+  name: "agent-knob"
+  friendly_name: "Agent Knob"
+  device_description: "Knob to interact with Agent"
+  project_name: "taweili.agent-knob"
+  project_version: "0.0.2"
 
 esphome:
   name: "${name}"
@@ -76,6 +76,10 @@ globals:
     type: int
     restore_value: no
     initial_value: '0'
+  - id: percentage_value
+    type: int
+    restore_value: no
+    initial_value: '50'
 
 switch:
   - platform: template
@@ -468,6 +472,24 @@ binary_sensor:
                   static const char* names[] = {"Red", "Green", "Blue", "Yellow", "Cyan", "Magenta", "White", "Orange", "Purple", "Pink"};
                   return names[id(color_page_index)];
       - if:
+          condition:
+            lambda: 'return id(current_page) == 6;'
+          then:
+            # Page 6 - Percentage Control - Decrease
+            - lambda: |-
+                if (id(percentage_value) > 0) {
+                  id(percentage_value)--;
+                }
+            - lvgl.widget.update:
+                id: percentage_arc
+                value: !lambda 'return id(percentage_value);'
+            - lvgl.label.update:
+                id: percentage_label
+                text: !lambda |-
+                  static char buf[8];
+                  snprintf(buf, sizeof(buf), "%d%%", id(percentage_value));
+                  return buf;
+      - if:
           condition: lvgl.is_paused
           then:
             - logger.log: "LVGL resuming from encoder"
@@ -499,6 +521,24 @@ binary_sensor:
                 text: !lambda |-
                   static const char* names[] = {"Red", "Green", "Blue", "Yellow", "Cyan", "Magenta", "White", "Orange", "Purple", "Pink"};
                   return names[id(color_page_index)];
+      - if:
+          condition:
+            lambda: 'return id(current_page) == 6;'
+          then:
+            # Page 6 - Percentage Control - Increase
+            - lambda: |-
+                if (id(percentage_value) < 100) {
+                  id(percentage_value)++;
+                }
+            - lvgl.widget.update:
+                id: percentage_arc
+                value: !lambda 'return id(percentage_value);'
+            - lvgl.label.update:
+                id: percentage_label
+                text: !lambda |-
+                  static char buf[8];
+                  snprintf(buf, sizeof(buf), "%d%%", id(percentage_value));
+                  return buf;
       - if:
           condition: lvgl.is_paused
           then:
@@ -541,15 +581,15 @@ lvgl:
             text_color: 0xFFFFFF
 
       on_swipe_left:
-        - lambda: 'id(current_page) = 5;'
+        - lambda: 'id(current_page) = 6;'
         - lvgl.page.show:
-            id: page_5
+            id: page_6
             animation: MOVE_LEFT
 
       on_swipe_right:
-        - lambda: 'id(current_page) = 5;'
+        - lambda: 'id(current_page) = 6;'
         - lvgl.page.show:
-            id: page_5
+            id: page_6
             animation: MOVE_RIGHT
 
     # Page 2 - Color Picker
@@ -580,6 +620,59 @@ lvgl:
             text: "Scroll to change"
             text_font: roboto_20
             text_color: 0x000000
+
+      on_swipe_left:
+        - lambda: 'id(current_page) = 6;'
+        - lvgl.page.show:
+            id: page_6
+            animation: MOVE_LEFT
+
+      on_swipe_right:
+        - lambda: 'id(current_page) = 6;'
+        - lvgl.page.show:
+            id: page_6
+            animation: MOVE_RIGHT
+
+    # Page 3 - Percentage Control
+    - id: page_6
+      widgets:
+        - obj:
+            id: percentage_bg
+            x: 0
+            y: 0
+            width: 360
+            height: 360
+            bg_color: 0x1A1A2E
+            border_width: 0
+            pad_all: 0
+
+        - arc:
+            id: percentage_arc
+            align: center
+            arc_rounded: false
+            width: 260
+            height: 260
+            arc_color: 0x00D2FF
+            arc_width: 18
+            bg_color: 0x333355
+            bg_opa: 80
+            arc_opa: 100
+
+        - label:
+            id: percentage_label
+            align: center
+            y: -8
+            text: "50%"
+            text_font: roboto_88
+            text_color: 0xFFFFFF
+
+        - label:
+            id: percentage_hint_label
+            align: center
+            y: 70
+            text: "Scroll to adjust"
+            text_font: roboto_20
+            text_color: 0xAAAAAA
 
       on_swipe_left:
         - lambda: 'id(current_page) = 4;'
