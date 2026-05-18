@@ -587,9 +587,9 @@ lvgl:
             animation: MOVE_LEFT
 
       on_swipe_right:
-        - lambda: 'id(current_page) = 6;'
+        - lambda: 'id(current_page) = 5;'
         - lvgl.page.show:
-            id: page_6
+            id: page_5
             animation: MOVE_RIGHT
 
     # Page 2 - Color Picker
@@ -622,9 +622,9 @@ lvgl:
             text_color: 0x000000
 
       on_swipe_left:
-        - lambda: 'id(current_page) = 6;'
+        - lambda: 'id(current_page) = 4;'
         - lvgl.page.show:
-            id: page_6
+            id: page_4
             animation: MOVE_LEFT
 
       on_swipe_right:
@@ -681,9 +681,9 @@ lvgl:
             animation: MOVE_LEFT
 
       on_swipe_right:
-        - lambda: 'id(current_page) = 4;'
+        - lambda: 'id(current_page) = 5;'
         - lvgl.page.show:
-            id: page_4
+            id: page_5
             animation: MOVE_RIGHT
 
 sensor:
