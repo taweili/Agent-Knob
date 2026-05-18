@@ -655,8 +655,8 @@ lvgl:
             arc_color: 0x00D2FF
             arc_width: 18
             bg_color: 0x333355
-            bg_opa: 80
-            arc_opa: 100
+            bg_opa: 80%
+            arc_opa: 100%
 
         - label:
             id: percentage_label
