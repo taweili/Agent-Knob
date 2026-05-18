@@ -90,3 +90,8 @@ After first flash the device exposes a fallback hotspot (`Agent Knob Fallback Ho
 - The display init sequence (`init_sequence:` under `display:`) is specific to the JC3636K518C panel — do not modify unless you know the correct command set.
 - The encoder is implemented as two `binary_sensor` GPIOs (not the native `rotary_encoder` component) so both pins can participate in deep-sleep EXT1 wakeup via `allow_other_uses: true`.
 - The backlight is a monochromatic `light` entity with `restore_mode: ALWAYS_ON` — it will turn on automatically after reboot or wake.
+
+## License
+
+This project is licensed under the **GNU General Public License v3.0**.
+See [gpl-3.0.md](gpl-3.0.md) for the full license text.
