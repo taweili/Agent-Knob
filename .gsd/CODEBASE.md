@@ -1,9 +1,10 @@
 # Codebase Map
 
-Generated: 2026-05-18T15:59:01Z | Files: 3 | Described: 0/3
-<!-- gsd:codebase-meta {"generatedAt":"2026-05-18T15:59:01Z","fingerprint":"fccb2bd8b4f548a94dda52834a455834c77d3106","fileCount":3,"truncated":false} -->
+Generated: 2026-05-19T14:17:26Z | Files: 4 | Described: 0/4
+<!-- gsd:codebase-meta {"generatedAt":"2026-05-19T14:17:26Z","fingerprint":"5d4bf553dc0384b715965d15b78af71ad695d2ff","fileCount":4,"truncated":false} -->
 
 ### (root)/
 - `.gitignore`
 - `Agent-Knob.yaml`
+- `gpl-3.0.md`
 - `README.md`
