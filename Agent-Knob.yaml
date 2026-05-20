@@ -133,18 +133,15 @@ font:
   - file: "gfonts://Roboto"
     id: roboto_20
     size: 20
-    glyphsets:
-      - GF_Latin_Core
+    glyphs: '!"%()+=,-_.:0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/°'
   - file: "gfonts://Roboto"
     id: roboto_32
     size: 32
-    glyphsets:
-      - GF_Latin_Core
+    glyphs: '!"%()+=,-_.:0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/°'
   - file: "gfonts://Roboto"
     id: roboto_88
     size: 88
-    glyphsets:
-      - GF_Latin_Core   
+    glyphs: '!"%()+=,-_.:0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz/°'   
          
 output:
   - platform: ledc
