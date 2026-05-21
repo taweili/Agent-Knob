@@ -15,6 +15,26 @@ esphome:
     board_build.flash_mode: dio
     board_build.f_flash: 80000000L
     board_build.f_cpu: 240000000L
+  on_boot:
+    priority: -100
+    then:
+      - logger.log: "EHCC: Boot check - exercising get_state()"
+      - lambda: |-
+          // Test get_state() returns valid initial value
+          int state = id(ehcc_state).get_state();
+          ESP_LOGI("ehcc.test", "EHCC boot state: %d (clamped range 0-999)", state);
+          // Test set_state() clamping behavior
+          id(ehcc_state).set_state(-5);     // Should clamp to 0
+          ESP_LOGI("ehcc.test", "After set_state(-5): %d", id(ehcc_state).get_state());
+          id(ehcc_state).set_state(1500);   // Should clamp to 999
+          ESP_LOGI("ehcc.test", "After set_state(1500): %d", id(ehcc_state).get_state());
+          id(ehcc_state).set_state(42);     // Should set to 42
+          ESP_LOGI("ehcc.test", "After set_state(42): %d", id(ehcc_state).get_state());
+
+external_components:
+  - source:
+      type: local
+      path: components
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -682,5 +702,10 @@ lvgl:
         - lvgl.page.show:
             id: page_2
             animation: MOVE_RIGHT
+
+ehcc:
+  id: ehcc_state
+  name: "EHCC State"
+  update_interval: 5s
 
 sensor:
